@@ -91,6 +91,55 @@ const calendrierMatchs = [
     getMatchById(id) {
         return this.matchs.find(match => match.id === id);
     }
+
+    simulerResultat(idMatch) {
+        const match = this.getMatchById(idMatch);
+        if (!match) {
+            console.log(`Match avec l'ID ${idMatch} non trouvé.`);
+            return null;
+        }
+
+        const random = Math.random();
+        let gagnant;
+        
+        if (random < match.probabiliteA) {
+            gagnant = match.equipeA;
+        } else {
+            gagnant = match.equipeB;
+        }
+
+        match.statut = 'Terminé';
+        match.resultat = gagnant;
+
+        console.log(`Match ${idMatch} simulé : ${gagnant} a gagné !`);
+        return match;
+    }
+
+    getStatsEquipe(nomEquipe) {
+        const matchsJoues = this.matchs.filter(match => 
+            (match.equipeA === nomEquipe || match.equipeB === nomEquipe) && 
+            match.statut === 'Terminé'
+        );
+
+        const nombreMatchs = matchsJoues.length;
+        
+        if (nombreMatchs === 0) {
+            return {
+                nomEquipe: nomEquipe,
+                matchsJoues: 0,
+                tauxVictoire: 0
+            };
+        }
+
+        const victoires = matchsJoues.filter(match => match.resultat === nomEquipe).length;
+        const tauxVictoire = (victoires / nombreMatchs) * 100;
+
+        return {
+            nomEquipe: nomEquipe,
+            matchsJoues: nombreMatchs,
+            tauxVictoire: Math.round(tauxVictoire * 100) / 100
+        };
+    }
   }
 
  const esportVision = new Plateforme('esportVision');
@@ -110,5 +159,22 @@ const calendrierMatchs = [
  console.log('Match par id');
  console.log('--------------------------------');
  console.log(esportVision.getMatchById('LFL_KC_SLY'));
-  
+
+ console.log('--------------------------------');
+ console.log('Simulation de matchs');
+ console.log('--------------------------------');
+ 
+ esportVision.simulerResultat('LFL_KC_SLY');
+ esportVision.simulerResultat('VCT_VIT_M8');
+ esportVision.simulerResultat('LFL_GO_BDS');
+ esportVision.simulerResultat('LFL_KC_M8');
+
+ console.log('--------------------------------');
+ console.log('Statistiques des équipes');
+ console.log('--------------------------------');
+ 
+ console.log('Stats Karmine Corp:', esportVision.getStatsEquipe('Karmine Corp'));
+ console.log('Stats Team Vitality:', esportVision.getStatsEquipe('Team Vitality'));
+ console.log('Stats Gentle Mates:', esportVision.getStatsEquipe('Gentle Mates'));
+ console.log('Stats Solary:', esportVision.getStatsEquipe('Solary'));
   
